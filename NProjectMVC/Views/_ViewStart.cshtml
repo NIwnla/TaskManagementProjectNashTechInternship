@@ -1,0 +1,16 @@
+﻿@{
+    var role = UserManager.GetRolesOfCurrentUser(User);
+    Layout = "_Layout";
+    if(role == UserRoles.User.ToString())
+    {
+        Layout = "_UserLayout";
+    }
+    if(role == UserRoles.Admin.ToString())
+    {
+        Layout = "_AdminLayout";
+    }
+    if (role == UserRoles.Manager.ToString())
+    {
+        Layout = "_ManagerLayout";
+    }
+}
