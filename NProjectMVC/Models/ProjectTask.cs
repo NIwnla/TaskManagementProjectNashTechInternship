@@ -20,8 +20,11 @@ namespace NProjectMVC.Models
         [Required]
         public DateTime? Deadline {  get; set; }
         [Required]
-        public string Status { get; set; }
+        public int Status { get; set; }
+        public float? EstimatedWorkTime { get; set; }
+        public float? TimeSpent { get; set; }
         public virtual Project? Project { get; set; }
         public virtual ICollection<User>? AssignedMembers { get; set; }
+        public virtual ICollection<WorkedTask>? WorkedTasks { get; set; }
     }
 }

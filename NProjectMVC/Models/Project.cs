@@ -13,6 +13,11 @@ namespace NProjectMVC.Models
         public string Name { get; set; }
         [Required]
         public string Description { get; set; }
+        [Required]
+        public DateTime? Deadline { get; set; }
+        public float? EstimatedWorkTime { get; set; }
+
+        public float? TimeSpent { get; set; }
 
         public virtual ICollection<ProjectTask>? ProjectTasks { get; set; }
         public virtual ICollection<User>? Members { get; set; }

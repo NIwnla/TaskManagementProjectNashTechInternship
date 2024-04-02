@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NProjectMVC.Data;
 
@@ -11,9 +12,10 @@ using NProjectMVC.Data;
 namespace NProjectMVC.Migrations
 {
     [DbContext(typeof(NProjectContext))]
-    partial class NProjectContextModelSnapshot : ModelSnapshot
+    [Migration("20240401064825_InitDb")]
+    partial class InitDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -226,8 +228,9 @@ namespace NProjectMVC.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<float?>("TimeSpent")
                         .HasColumnType("real");
@@ -324,47 +327,6 @@ namespace NProjectMVC.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("NProjectMVC.Models.WorkedTask", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("TaskId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("WorkedTasks");
-                });
-
             modelBuilder.Entity("ProjectTaskUser", b =>
                 {
                     b.Property<string>("AssignedMembersId")
@@ -457,25 +419,6 @@ namespace NProjectMVC.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("NProjectMVC.Models.WorkedTask", b =>
-                {
-                    b.HasOne("NProjectMVC.Models.ProjectTask", "ProjectTask")
-                        .WithMany("WorkedTasks")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("NProjectMVC.Models.User", "User")
-                        .WithMany("WorkedTasks")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProjectTask");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ProjectTaskUser", b =>
                 {
                     b.HasOne("NProjectMVC.Models.User", null)
@@ -509,16 +452,6 @@ namespace NProjectMVC.Migrations
             modelBuilder.Entity("NProjectMVC.Models.Project", b =>
                 {
                     b.Navigation("ProjectTasks");
-                });
-
-            modelBuilder.Entity("NProjectMVC.Models.ProjectTask", b =>
-                {
-                    b.Navigation("WorkedTasks");
-                });
-
-            modelBuilder.Entity("NProjectMVC.Models.User", b =>
-                {
-                    b.Navigation("WorkedTasks");
                 });
 #pragma warning restore 612, 618
         }

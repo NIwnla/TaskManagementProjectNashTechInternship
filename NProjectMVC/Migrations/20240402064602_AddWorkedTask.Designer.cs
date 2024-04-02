@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NProjectMVC.Data;
 
@@ -11,9 +12,10 @@ using NProjectMVC.Data;
 namespace NProjectMVC.Migrations
 {
     [DbContext(typeof(NProjectContext))]
-    partial class NProjectContextModelSnapshot : ModelSnapshot
+    [Migration("20240402064602_AddWorkedTask")]
+    partial class AddWorkedTask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -226,8 +228,9 @@ namespace NProjectMVC.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<float?>("TimeSpent")
                         .HasColumnType("real");

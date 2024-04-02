@@ -14,16 +14,16 @@ namespace NProjectMVC.Repository
             _context = nProjectContext;
         }
 
-        public bool Create(T entity)
+        public bool Create(T entity, string userId)
         {
             _context.Set<T>().Add(entity);
-            return _context.SaveChanges() > 0 ? true : false;
+            return _context.SaveChanges(userId) > 0 ? true : false;
         }
 
-        public bool Delete(T entity)
+        public bool Delete(T entity, string userId)
         {
             _context.Set<T>().Remove(entity);
-            return _context.SaveChanges() > 0 ? true : false;
+            return _context.SaveChanges(userId) > 0 ? true : false;
         }
 
         public IQueryable<T> FindAll()
@@ -36,10 +36,10 @@ namespace NProjectMVC.Repository
             return _context.Set<T>().Where(condition);
         }
 
-        public bool Update(T entity)
+        public bool Update(T entity, string userId)
         {
             _context.Set<T>().Update(entity);
-            return _context.SaveChanges() > 0 ? true : false;
+            return _context.SaveChanges(userId) > 0 ? true : false;
         }
     }
 }

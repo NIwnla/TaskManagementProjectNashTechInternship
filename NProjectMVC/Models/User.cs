@@ -12,5 +12,6 @@ namespace NProjectMVC.Models
 		public string? ProfilePic { get; set; }
 		public virtual ICollection<ProjectTask>? Tasks { get; set; }
 		public virtual ICollection<Project>? Projects { get; set; }
+		public virtual ICollection<WorkedTask>? WorkedTasks { get; set; }
     }
 }

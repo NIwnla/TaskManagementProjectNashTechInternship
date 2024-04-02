@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NProjectMVC.Data;
+using NProjectMVC.Extension;
 using NProjectMVC.Interface;
 using NProjectMVC.Models;
 using NProjectMVC.Repository;
@@ -79,6 +80,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllerRoute(
+	name: "MyArea",
+	pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
@@ -102,24 +106,41 @@ using (var scope = app.Services.CreateScope())
 using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-    string email = "admin@admin.com";
+    string emailAdmin = "admin@admin.com";
+    string emailManager = "manager@manager.com";
+    string emailUser = "user@user.com";
     string password = "Son123456789";
-
-    if (await userManager.FindByEmailAsync(email) == null)
+    if (await userManager.FindByEmailAsync(emailAdmin) == null)
     {
-        var user = new User
+        var admin = new User
         {
-            Email = email,
-            UserName = email,
+            Email = emailAdmin,
+            UserName = emailAdmin,
             EmailConfirmed = true
         };
+        var manager = new User
+        {
+            Email = emailManager,
+            UserName = emailManager,
+            EmailConfirmed = true
+        };
+        var user = new User
+        {
+            Email = emailUser,
+            UserName = emailUser,
+            EmailConfirmed = true
+        };
+        await userManager.CreateAsync(admin, password);
+        await userManager.AddToRoleAsync(admin, "Admin");
+        await userManager.CreateAsync(manager, password);
+        await userManager.AddToRoleAsync(manager, "Manager");
         await userManager.CreateAsync(user, password);
-
-        await userManager.AddToRoleAsync(user, "Admin");
+        await userManager.AddToRoleAsync(user, "User");
     }
 
 
 }
 
+app.SeedData();
 
 app.Run();

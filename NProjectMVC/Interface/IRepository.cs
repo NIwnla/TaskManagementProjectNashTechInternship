@@ -7,8 +7,8 @@ namespace NProjectMVC.Interface
     {
         IQueryable<T> FindAll();
         IQueryable<T> FindByCondition(Expression<Func<T, bool>> condition);
-        bool Create(T entity);
-        bool Update(T entity);
-        bool Delete(T entity);
+        bool Create(T entity, string userId);
+        bool Update(T entity, string userId);
+        bool Delete(T entity, string userId);
     }
 }

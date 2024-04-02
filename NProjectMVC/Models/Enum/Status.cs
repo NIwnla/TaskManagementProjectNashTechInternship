@@ -2,10 +2,10 @@
 {
     public enum Status
     {
-        Complete,
-        CanceleX,
-        InProgress,
-        OnHold,
-        NotStarted
+        Complete = 0,
+        Canceled = 1,
+        InProgress = 2,
+        OnHold = 3,
+        NotStarted = 4
     }
 }
