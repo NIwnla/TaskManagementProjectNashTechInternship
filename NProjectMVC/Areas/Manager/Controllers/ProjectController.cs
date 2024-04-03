@@ -7,6 +7,7 @@ using NProjectMVC.Extension;
 using NProjectMVC.Interface;
 using NProjectMVC.Models;
 using NProjectMVC.Ultilities;
+using NuGet.Packaging;
 using NuGet.Packaging.Signing;
 
 namespace NProjectMVC.Areas.Manager.Controllers
@@ -24,8 +25,10 @@ namespace NProjectMVC.Areas.Manager.Controllers
 		}
 		public async Task<IActionResult> Index(string searchString, string currentFilter, int? pageNumber)
 		{
-			var list = _repository.FindAll().Include(p => p.ProjectTasks).AsQueryable();
-
+			var list = _repository.FindAll()
+				.Include(p => p.Members)
+				.AsQueryable();
+			list = list.Where(p => p.Members.Any(m => m.Id == User.GetUserId()));
 			if (searchString != null)
 			{
 				pageNumber = 1;
@@ -38,7 +41,7 @@ namespace NProjectMVC.Areas.Manager.Controllers
 
 			if (!String.IsNullOrEmpty(searchString))
 			{
-				list = list.Where(l => l.Name.Contains(searchString) || l.Description.Contains(searchString));
+				list = list.Where(l => l.Name.Contains(searchString));
 			}
 
 			int pageSize = 5;
@@ -57,7 +60,6 @@ namespace NProjectMVC.Areas.Manager.Controllers
 
 		public IActionResult Create()
 		{
-			ViewData["Users"] = _userManager.Users.ToList();
 			return View();
 		}
 
@@ -71,6 +73,7 @@ namespace NProjectMVC.Areas.Manager.Controllers
 			}
 			var memberIds = Request.Form["memberIds"];
 			model.Members = new List<User>();
+			model.Members.Add(_userManager.Users.Where(u => u.Id == User.GetUserId()).FirstOrDefault());
 			foreach (var memberId in memberIds)
 			{
 				var user = _userManager.Users.Where(u => u.Id == memberId).FirstOrDefault();
@@ -89,10 +92,16 @@ namespace NProjectMVC.Areas.Manager.Controllers
 		public IActionResult Edit(Guid id)
 		{
 			var project = _repository.FindByCondition(p => p.Id == id).Include(p => p.Members).FirstOrDefault();
+			var users = _userManager.Users.ToList();
 			if (project == null)
 			{
 				return NotFound("Not found");
 			}
+			foreach (var member in project.Members)
+			{
+				users.Remove(member);
+			}
+			ViewData["UsersEdit"] = users;
 			return View(project);
 		}
 
@@ -104,7 +113,18 @@ namespace NProjectMVC.Areas.Manager.Controllers
 			{
 				return BadRequest(ModelState);
 			}
-			if (_repository.Update(model, User.GetUserId()))
+			var memberIds = Request.Form["memberIds"];
+			var project = _repository.FindByCondition(p => p.Id == model.Id).Include(p => p.Members).FirstOrDefault();
+			project.Deadline = model.Deadline;
+			project.Description = model.Description;
+			project.EstimatedWorkTime = model.EstimatedWorkTime;
+			project.Name = model.Name;
+			foreach (var memberId in memberIds)
+			{
+				var user = _userManager.Users.Where(u => u.Id == memberId).FirstOrDefault();
+				project.Members.Add(user);
+			}
+			if (_repository.Update(project, User.GetUserId()))
 			{
 				return RedirectToAction(nameof(Index));
 			}
@@ -125,8 +145,8 @@ namespace NProjectMVC.Areas.Manager.Controllers
 			}
 			else
 			{
-				return RedirectToAction("Edit", new { id = project.Id });
 				Console.WriteLine("Error while removing member from project");
+				return RedirectToAction("Edit", new { id = project.Id });
 			}
 		}
 	}

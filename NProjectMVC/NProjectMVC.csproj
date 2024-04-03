@@ -25,7 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Manager\Views\ProjectTask\" />
     <Folder Include="Controllers\" />
   </ItemGroup>
 
