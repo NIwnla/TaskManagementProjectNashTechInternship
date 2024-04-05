@@ -15,15 +15,13 @@
 }
 <div class="row d-flex">
 	<div class="col-sm-12 border">
-		@displayName
+		<a  asp-action="Details" asp-route-id="@Model.Id">@displayName</a>
 		<div class="d-flex justify-content-between">
 			<div class="p-2">
 				Progress: @Model.CompletedTask / @Model.TotalTask
 			</div>
 			<div class="ml-auto p-2">
-				<a asp-action="Details" asp-route-id="@Model.Id">Details</a> |
-				<a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-				<a asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
+				Estimated Time: @Model.EstimatedWorkTime h | Time worked: @Model.TimeSpent h
 			</div>
 		</div>
 	</div>

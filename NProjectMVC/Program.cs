@@ -56,6 +56,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddScoped<IRepository<Project>, Repository<Project>>();
 builder.Services.AddScoped<IRepository<ProjectTask>, Repository<ProjectTask>>();
+builder.Services.AddScoped<IRepository<WorkedTask>, Repository<WorkedTask>>();
 
 
 var app = builder.Build();

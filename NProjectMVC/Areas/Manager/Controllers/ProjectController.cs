@@ -27,6 +27,7 @@ namespace NProjectMVC.Areas.Manager.Controllers
 		{
 			var list = _repository.FindAll()
 				.Include(p => p.Members)
+				.Include(p => p.ProjectTasks)
 				.AsQueryable();
 			list = list.Where(p => p.Members.Any(m => m.Id == User.GetUserId()));
 			if (searchString != null)
@@ -38,7 +39,6 @@ namespace NProjectMVC.Areas.Manager.Controllers
 				searchString = currentFilter;
 			}
 			ViewData["CurrentFilter"] = searchString;
-
 			if (!String.IsNullOrEmpty(searchString))
 			{
 				list = list.Where(l => l.Name.Contains(searchString));

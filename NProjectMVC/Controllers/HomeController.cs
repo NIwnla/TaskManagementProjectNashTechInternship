@@ -29,6 +29,10 @@ namespace NProjectMVC.Controllers
             {
                 return RedirectToAction("Index", "Home", new { area = "Manager" });
             }
+            if (role == UserRoles.User.ToString())
+            {
+                return RedirectToAction("Index", "Home", new { area = "NormalUser" });
+            }
             return View();
 		}
 

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace NProjectMVC.Migrations
 {
-    public partial class InitDb : Migration
+    public partial class initDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -55,7 +55,7 @@ namespace NProjectMVC.Migrations
                 name: "Projects",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Deadline = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -181,12 +181,12 @@ namespace NProjectMVC.Migrations
                 name: "ProjectTasks",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "newid()"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Deadline = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     EstimatedWorkTime = table.Column<float>(type: "real", nullable: true),
                     TimeSpent = table.Column<float>(type: "real", nullable: true),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -253,6 +253,38 @@ namespace NProjectMVC.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "WorkedTasks",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TaskId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Time = table.Column<float>(type: "real", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UpdatedTime = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkedTasks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WorkedTasks_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_WorkedTasks_ProjectTasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "ProjectTasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -306,6 +338,16 @@ namespace NProjectMVC.Migrations
                 name: "IX_ProjectUser_ProjectsId",
                 table: "ProjectUser",
                 column: "ProjectsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkedTasks_TaskId",
+                table: "WorkedTasks",
+                column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkedTasks_UserId",
+                table: "WorkedTasks",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -332,13 +374,16 @@ namespace NProjectMVC.Migrations
                 name: "ProjectUser");
 
             migrationBuilder.DropTable(
+                name: "WorkedTasks");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "ProjectTasks");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "ProjectTasks");
 
             migrationBuilder.DropTable(
                 name: "Projects");

@@ -2,7 +2,7 @@
 
 @{
 	ViewData["Title"] = "Create";
-	List<User> users = UserManager.Users.ToList();
+	var users = (ICollection<User>)ViewData["AvailableUsers"];
 	var currentId = UserManager.GetUserId(User);
 	var projectId = ViewData["ProjectId"];
 }
@@ -76,7 +76,7 @@
 </div>
 
 <div>
-	<a asp-action="Index">Back to List</a>
+	<a onclick="history.back()" class="link-primary">Go Back</a>
 </div>
 
 @section Scripts {

@@ -346,6 +346,9 @@ namespace NProjectMVC.Migrations
                     b.Property<Guid>("TaskId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<float>("Time")
+                        .HasColumnType("real");
+
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
 

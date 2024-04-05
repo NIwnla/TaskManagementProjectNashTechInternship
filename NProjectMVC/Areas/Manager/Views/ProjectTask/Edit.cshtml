@@ -1,0 +1,97 @@
+﻿@model NProjectMVC.Models.ProjectTask
+
+@{
+    ViewData["Title"] = "Edit";
+    var users = (ICollection<User>)ViewData["UsersInProject"];
+    var currentId = UserManager.GetUserId(User);
+}
+
+<h1>Edit</h1>
+
+<h4>ProjectTask</h4>
+<hr />
+<div class="row d-flex justify-content-between">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group" hidden>
+                <label asp-for="ProjectId" class="control-label"></label>
+                <input asp-for="ProjectId" class="form-control" value="@Model?.ProjectId" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Deadline" class="control-label"></label>
+                <input asp-for="Deadline" class="form-control" />
+                <span asp-validation-for="Deadline" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <select asp-for="Status" asp-items="Html.GetEnumSelectList<Status>()"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="EstimatedWorkTime" class="control-label"></label>
+                <input asp-for="EstimatedWorkTime" class="form-control" />
+                <span asp-validation-for="EstimatedWorkTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TimeSpent" class="control-label"></label>
+                <input asp-for="TimeSpent" class="form-control" />
+                <span asp-validation-for="TimeSpent" class="text-danger"></span>
+            </div>
+            @if (users != null)
+            {
+                <div class="form-group">
+                    <select name="memberIds" multiple>
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.Id"> @user.UserName</option>
+                        }
+                    </select>
+                </div>
+            }
+            else
+            {
+                <div class="form-group">
+                    <span class="text-primary"> All available users in project are participating in this project </span>
+                </div>
+            }
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <ul class="list-group">
+
+            @foreach (var member in Model.AssignedMembers)
+            {
+                if (currentId == member.Id)
+                {
+                    <li class="list-group-item">@member.UserName</li>
+                }
+                else
+                {
+                    <li class="list-group-item"> @member.UserName | <a asp-action="RemoveMember" asp-route-memberId="@member.Id" asp-route-taskId="@Model.Id">Remove</a></li>
+                }
+            }
+        </ul>
+    </div>
+</div>
+
+<div>
+    <a asp-controller="Project" asp-action="Details" asp-route-id="@Model.ProjectId">Back to Project</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

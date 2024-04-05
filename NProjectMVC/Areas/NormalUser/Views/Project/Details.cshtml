@@ -43,12 +43,11 @@
 	</dl>
 </div>
 <div>
-	<a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
 	<a asp-action="Index">Back to List</a>
 </div>
 <div>
 	<div>
 		<a asp-controller="ProjectTask" asp-action="Create" asp-route-projectId="@Model?.Id">Create new Task</a>
 	</div>
-	<partial name="_ProjectList" model="Model.ProjectTasks" />
+	<partial name="_ProjectList" model="Model?.ProjectTasks" />
 </div>

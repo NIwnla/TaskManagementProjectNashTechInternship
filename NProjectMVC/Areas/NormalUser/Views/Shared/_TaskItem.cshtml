@@ -1,0 +1,62 @@
+﻿@model NProjectMVC.Models.ProjectTask
+@{
+	var description = "";
+
+	if (Model.Description.Length >= 100)
+	{
+		description = Model.Description.Substring(0, 100) + "...";
+	}
+	else
+	{
+		description = Model.Description;
+	}
+
+
+}
+<div class="row d-flex">
+	<div class="col-sm-12 border">
+		<a asp-controller="ProjectTask" asp-action="Details" asp-route-id="@Model.Id">@Model.Title</a>
+		<div>
+			@description
+		</div>
+		<div class="d-flex justify-content-between">
+			<div class="p-2">
+				@{
+					var textColor = "";
+					Status status = (Status)Model.Status;
+					switch (status)
+					{
+						case Status.Canceled:
+						case Status.OnHold:
+							textColor = "text-danger";
+							break;
+						case Status.Complete:
+							textColor = "text-success";
+							break;
+						case Status.InProgress:
+							textColor = "text-info";
+							break;
+						case Status.NotStarted:
+							textColor = "text-dark";
+							break;
+					}
+				}
+				<p class="@textColor">@status.ToString()</p>
+			</div>
+			<div class="p-2">
+				DeadLine:
+				@Model.Deadline
+			</div>
+			@if (!Model.AssignedMembers.Any(u => u.Id == User.GetUserId()))
+			{
+				<div class="p-2 text-danger">
+					You 're not assigned to this task
+				</div>
+			}
+			<div class="ml-auto p-2">
+				Estimated Time: @Model.EstimatedWorkTime h | Time worked: @Model.TimeSpent h
+			</div>
+		</div>
+	</div>
+</div>
+

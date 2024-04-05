@@ -17,6 +17,8 @@ namespace NProjectMVC.Models
         public DateTime StartTime { get; set; }
         [Required]
         public string Description {  get; set; }
+        [Required]
+        public float Time { get; set; }
 
         public virtual ProjectTask? ProjectTask { get; set; }
         public virtual User? User { get; set; }
