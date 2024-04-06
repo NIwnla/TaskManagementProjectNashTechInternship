@@ -1,0 +1,138 @@
+﻿@model PaginatedList<NProjectMVC.Models.ViewModel.UserVM>
+@{
+	ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+	<a asp-action="Create">Create New</a>
+</p>
+<form asp-action="Index" method="get">
+	<div class="form-actions no-color">
+		<p>
+			Find by name: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+			<input type="submit" value="Search" class="btn btn-default" /> |
+			<a asp-action="Index">Back to Full List</a>
+		</p>
+	</div>
+</form>
+<table class="table">
+	<thead>
+		<tr>
+			<th>
+				Email
+			</th>
+			<th>
+				UserName
+			</th>
+			<th>
+				Name
+			</th>
+			<th>
+				DOB
+			</th>
+			<th>
+				Role
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => item.Email)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.UserName)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.Name)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.DOB)
+				</td>
+				<td>
+					@if (item.Role == UserRoles.User)
+					{
+						<select id="roleSelect">
+							<option value="@UserRoles.User.ToString()" data-previous-role="@item.Role.ToString()" data-userId="@item.Id" selected>
+								@UserRoles.User.ToString()
+								</option>
+							<option value="@UserRoles.Manager.ToString()" data-previous-role="@item.Role.ToString()" data-userId="@item.Id" >
+								@UserRoles.Manager.ToString()
+								</option>
+						</select>
+					}
+					@if (item.Role == UserRoles.Manager)
+					{
+						<select id="roleSelect">
+							<option value="@UserRoles.User.ToString()" data-previous-role="@item.Role.ToString()" data-userId="@item.Id">
+								@UserRoles.User.ToString()
+								</option>
+							<option value="@UserRoles.Manager.ToString()" data-previous-role="@item.Role.ToString()" data-userId="@item.Id" selected>
+								@UserRoles.Manager.ToString()
+								</option>
+						</select>
+					}
+
+					@if (item.Role == UserRoles.Admin)
+					{
+						@Html.DisplayFor(modelItem => item.Role)
+					}
+				</td>
+			</tr>
+
+		}
+
+	</tbody>
+</table>
+
+
+
+
+@{
+	var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+	var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @prevDisabled">
+	Previous
+</a>
+<a asp-action="Index"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @nextDisabled">
+	Next
+</a>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+	$(document).ready(function () {
+		$('#roleSelect').change(function () {
+			var role = $(this).val();
+			var previousRole = $(this).find(':selected').data('previous-role');
+			var userId = $(this).find(':selected').data('userid');
+			$.ajax({
+				url: '/Admin/User/ChangeRole',
+				type: 'POST',
+				data: { role: role, previousRole: previousRole, userId: userId  },
+				success: function (response) {
+					// Handle success response if needed
+					console.log(response);
+				},
+				error: function (xhr, status, error) {
+					// Handle error response if needed
+					console.error(error);
+				}
+			});
+		});
+	});
+</script>

@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NProjectMVC.Data;
+using NProjectMVC.Extension;
+using NProjectMVC.Interface;
 using NProjectMVC.Models;
+using NProjectMVC.Ultilities;
 
 namespace NProjectMVC.Areas.Admin.Controllers
 {
@@ -15,36 +19,48 @@ namespace NProjectMVC.Areas.Admin.Controllers
 	[Authorize(Roles = "Admin")]
 	public class ProjectController : Controller
 	{
-		private readonly NProjectContext _context;
+		private readonly IRepository<Project> _repository;
+		private readonly UserManager<User> _userManager;
 
-		public ProjectController(NProjectContext context)
+		public ProjectController(IRepository<Project> repository, UserManager<User> userManager)
 		{
-			_context = context;
+			_userManager = userManager;
+			_repository = repository;
 		}
 
 		// GET: Admin/Project
-		public async Task<IActionResult> Index()
+		public async Task<IActionResult> Index(string searchString, string currentFilter, int? pageNumber)
 		{
-			return _context.Projects != null ?
-						View(await _context.Projects.ToListAsync()) :
-						Problem("Entity set 'NProjectContext.Projects'  is null.");
+			var list = _repository.FindAll()
+				.Include(p => p.Members)
+				.Include(p => p.ProjectTasks)
+				.AsQueryable();
+			if (searchString != null)
+			{
+				pageNumber = 1;
+			}
+			else
+			{
+				searchString = currentFilter;
+			}
+			ViewData["CurrentFilter"] = searchString;
+			if (!String.IsNullOrEmpty(searchString))
+			{
+				list = list.Where(l => l.Name.Contains(searchString));
+			}
+
+			int pageSize = 5;
+			return View(await PaginatedList<Project>.CreateAsync(list.AsNoTracking(), pageNumber ?? 1, pageSize));
 		}
 
 		// GET: Admin/Project/Details/5
-		public async Task<IActionResult> Details(Guid? id)
+		public IActionResult Details(Guid id)
 		{
-			if (id == null || _context.Projects == null)
-			{
-				return NotFound();
-			}
-
-			var project = await _context.Projects
-				.FirstOrDefaultAsync(m => m.Id == id);
+			var project = _repository.FindByCondition(p => p.Id == id).Include(p => p.ProjectTasks).FirstOrDefault();
 			if (project == null)
 			{
-				return NotFound();
+				return NotFound("Not found");
 			}
-
 			return View(project);
 		}
 
@@ -59,109 +75,89 @@ namespace NProjectMVC.Areas.Admin.Controllers
 		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Create([Bind("Id,Name,Description,Deadline,EstimatedWorkTime,TimeSpent")] Project project)
+		public IActionResult Create(Project model)
 		{
-			if (ModelState.IsValid)
+			if (!ModelState.IsValid)
 			{
-				project.Id = Guid.NewGuid();
-				_context.Add(project);
-				await _context.SaveChangesAsync();
+				return BadRequest(ModelState);
+			}
+			var memberIds = Request.Form["memberIds"];
+			model.Members = new List<User>();
+			model.Members.Add(_userManager.Users.Where(u => u.Id == User.GetUserId()).FirstOrDefault());
+			foreach (var memberId in memberIds)
+			{
+				var user = _userManager.Users.Where(u => u.Id == memberId).FirstOrDefault();
+				model.Members.Add(user);
+			}
+			if (_repository.Create(model, User.GetUserId()))
+			{
 				return RedirectToAction(nameof(Index));
 			}
-			return View(project);
+			else
+			{
+				return Problem("Error when create project");
+			}
 		}
 
-		// GET: Admin/Project/Edit/5
-		public async Task<IActionResult> Edit(Guid? id)
+		public IActionResult Edit(Guid id)
 		{
-			if (id == null || _context.Projects == null)
-			{
-				return NotFound();
-			}
-
-			var project = await _context.Projects.FindAsync(id);
+			var project = _repository.FindByCondition(p => p.Id == id).Include(p => p.Members).FirstOrDefault();
+			var users = _userManager.Users.ToList();
 			if (project == null)
 			{
-				return NotFound();
+				return NotFound("Not found");
 			}
+			foreach (var member in project.Members)
+			{
+				users.Remove(member);
+			}
+			ViewData["UsersEdit"] = users;
 			return View(project);
 		}
 
-		// POST: Admin/Project/Edit/5
-		// To protect from overposting attacks, enable the specific properties you want to bind to.
-		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Description,Deadline,EstimatedWorkTime,TimeSpent")] Project project)
+		public IActionResult Edit(Project model)
 		{
-			if (id != project.Id)
+			if (!ModelState.IsValid)
 			{
-				return NotFound();
+				return BadRequest(ModelState);
 			}
-
-			if (ModelState.IsValid)
+			var memberIds = Request.Form["memberIds"];
+			var project = _repository.FindByCondition(p => p.Id == model.Id).Include(p => p.Members).FirstOrDefault();
+			project.Deadline = model.Deadline;
+			project.Description = model.Description;
+			project.EstimatedWorkTime = model.EstimatedWorkTime;
+			project.Name = model.Name;
+			foreach (var memberId in memberIds)
 			{
-				try
-				{
-					_context.Update(project);
-					await _context.SaveChangesAsync();
-				}
-				catch (DbUpdateConcurrencyException)
-				{
-					if (!ProjectExists(project.Id))
-					{
-						return NotFound();
-					}
-					else
-					{
-						throw;
-					}
-				}
+				var user = _userManager.Users.Where(u => u.Id == memberId).FirstOrDefault();
+				project.Members.Add(user);
+			}
+			if (_repository.Update(project, User.GetUserId()))
+			{
 				return RedirectToAction(nameof(Index));
 			}
-			return View(project);
+			else
+			{
+				return Problem("Error when update project");
+			}
 		}
 
-		// GET: Admin/Project/Delete/5
-		public async Task<IActionResult> Delete(Guid? id)
+		public IActionResult RemoveMember(string memberId, Guid projectId)
 		{
-			if (id == null || _context.Projects == null)
+			var member = _userManager.Users.Where(u => u.Id == memberId).FirstOrDefault();
+			var project = _repository.FindByCondition(p => p.Id == projectId).Include(p => p.Members).FirstOrDefault();
+			project.Members.Remove(member);
+			if (_repository.Update(project, User.GetUserId()))
 			{
-				return NotFound();
+				return RedirectToAction("Edit", new { id = project.Id });
 			}
-
-			var project = await _context.Projects
-				.FirstOrDefaultAsync(m => m.Id == id);
-			if (project == null)
+			else
 			{
-				return NotFound();
+				Console.WriteLine("Error while removing member from project");
+				return RedirectToAction("Edit", new { id = project.Id });
 			}
-
-			return View(project);
-		}
-
-		// POST: Admin/Project/Delete/5
-		[HttpPost, ActionName("Delete")]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> DeleteConfirmed(Guid id)
-		{
-			if (_context.Projects == null)
-			{
-				return Problem("Entity set 'NProjectContext.Projects'  is null.");
-			}
-			var project = await _context.Projects.FindAsync(id);
-			if (project != null)
-			{
-				_context.Projects.Remove(project);
-			}
-
-			await _context.SaveChangesAsync();
-			return RedirectToAction(nameof(Index));
-		}
-
-		private bool ProjectExists(Guid id)
-		{
-			return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
 		}
 	}
 }

@@ -1,0 +1,29 @@
+﻿@model NProjectMVC.Models.ViewModel.ProjectVM
+@{
+	var displayName = "";
+
+	if (Model.Name.Length >= 100)
+	{
+		displayName = Model.Name.Substring(0, 100) + "...";
+	}
+	else
+	{
+		displayName = Model.Name;
+	}
+
+
+}
+<div class="row d-flex">
+	<div class="col-sm-12 border">
+		<a  asp-action="Details" asp-route-id="@Model.Id">@displayName</a>
+		<div class="d-flex justify-content-between">
+			<div class="p-2">
+				Progress: @Model.CompletedTask / @Model.TotalTask
+			</div>
+			<div class="ml-auto p-2">
+				Estimated Time: @Model.EstimatedWorkTime h | Time worked: @Model.TimeSpent h
+			</div>
+		</div>
+	</div>
+</div>
+

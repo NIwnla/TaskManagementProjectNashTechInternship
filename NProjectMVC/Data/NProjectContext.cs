@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NProjectMVC.Models;
+using NProjectMVC.Models.Enum;
 
 namespace NProjectMVC.Data
 {
@@ -86,6 +88,22 @@ namespace NProjectMVC.Data
             }
             return SaveChanges();
         }
+
+        public T GetShadowProperty<T>(string shadowPropertyName, object entity)
+        {
+			var entry = Entry(entity);
+            T value = default(T);
+            if (entry != null)
+            {
+                if (entry.Properties.Any(e => e.Metadata.Name == shadowPropertyName))
+                {
+                    value =(T) entry.Property(shadowPropertyName).CurrentValue;
+                }
+            }
+            return value;
+        }
+
+
 
     }
 

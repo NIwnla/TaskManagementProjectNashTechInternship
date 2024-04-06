@@ -10,5 +10,7 @@ namespace NProjectMVC.Interface
         bool Create(T entity, string userId);
         bool Update(T entity, string userId);
         bool Delete(T entity, string userId);
-    }
+        T1 GetShadowProperty<T1>(string propertyName, T entity);
+
+	}
 }

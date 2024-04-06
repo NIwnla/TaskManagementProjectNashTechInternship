@@ -41,5 +41,10 @@ namespace NProjectMVC.Repository
             _context.Set<T>().Update(entity);
             return _context.SaveChanges(userId) > 0 ? true : false;
         }
+
+        public T1 GetShadowProperty<T1>(string propertyName, T entity) 
+        {
+            return _context.GetShadowProperty<T1>(propertyName, entity);
+        }
     }
 }

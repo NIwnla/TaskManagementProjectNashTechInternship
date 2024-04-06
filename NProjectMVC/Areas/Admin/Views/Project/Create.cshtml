@@ -1,7 +1,9 @@
 ﻿@model NProjectMVC.Models.Project
 
 @{
-    ViewData["Title"] = "Create";
+	ViewData["Title"] = "Create";
+	List<User> users = UserManager.Users.ToList();
+	var currentId = UserManager.GetUserId(User);
 }
 
 <h1>Create</h1>
@@ -9,45 +11,57 @@
 <h4>Project</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Deadline" class="control-label"></label>
-                <input asp-for="Deadline" class="form-control" />
-                <span asp-validation-for="Deadline" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EstimatedWorkTime" class="control-label"></label>
-                <input asp-for="EstimatedWorkTime" class="form-control" />
-                <span asp-validation-for="EstimatedWorkTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TimeSpent" class="control-label"></label>
-                <input asp-for="TimeSpent" class="form-control" />
-                <span asp-validation-for="TimeSpent" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+	<div class="col-md-4">
+		<form asp-action="Create">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div class="form-group">
+				<label asp-for="Name" class="control-label"></label>
+				<input asp-for="Name" class="form-control" />
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Description" class="control-label"></label>
+				<input asp-for="Description" class="form-control" />
+				<span asp-validation-for="Description" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Deadline" class="control-label"></label>
+				<input asp-for="Deadline" class="form-control" />
+				<span asp-validation-for="Deadline" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="EstimatedWorkTime" class="control-label"></label>
+				<input asp-for="EstimatedWorkTime" class="form-control" />
+				<span asp-validation-for="EstimatedWorkTime" class="text-danger"></span>
+			</div>
+			<div class="form-group" hidden>
+				<label asp-for="TimeSpent" class="control-label"></label>
+				<input asp-for="TimeSpent" class="form-control" value="0.0"/>
+			</div>
+			<div class="form-group">
+				<select name="memberIds" multiple>
+					@foreach (var user in users)
+					{
+						if (user.Id != currentId)
+						{
+							<option value="@user.Id"> @user.UserName</option>
+						}
+					}
+				</select>
+			</div>
+			<div class="form-group">
+				<input type="submit" value="Create" class="btn btn-primary" />
+			</div>
+		</form>
+	</div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+	<a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
 }

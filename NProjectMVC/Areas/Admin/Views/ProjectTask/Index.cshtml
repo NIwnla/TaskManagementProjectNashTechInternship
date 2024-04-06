@@ -1,71 +1,60 @@
-﻿@model IEnumerable<NProjectMVC.Models.ProjectTask>
+﻿@model PaginatedList<NProjectMVC.Models.ProjectTask>
 
 @{
-    ViewData["Title"] = "Index";
+	ViewData["Title"] = "Index";
 }
 
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+	<a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Deadline)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EstimatedWorkTime)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TimeSpent)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Project)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Deadline)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EstimatedWorkTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TimeSpent)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Project.Description)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+<form asp-action="Index" method="get">
+	<div class="form-actions no-color">
+		<p>
+			Find by name: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+			<input type="submit" value="Search" class="btn btn-default" /> |
+			<a asp-action="Index">Back to Full List</a>
+		</p>
+	</div>
+</form>
+<form asp-action="Index" method="get">
+	<div class="form-actions no-color">
+		<select name="statusSort" asp-items="Html.GetEnumSelectList<Status>()">
+			@if (@ViewData["CurrentStatus"] != null)
+			{
+				Status currentStatus = (Status)Convert.ToInt32(ViewData["CurrentStatus"]);
+				<option value="@ViewData["CurrentStatus"]" selected>@currentStatus.ToString()</option>
+			}
+			else
+			{
+				<option value="@ViewData["CurrentStatus"]" selected>Choose status</option>
+			}
+		</select>
+		<input type="submit" value="Search" class="btn btn-default" />
+	</div>
+</form>
+@foreach (var item in Model)
+{
+
+	<partial name="_TaskItem" model="@item" />
 }
-    </tbody>
-</table>
+@{
+	var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+	var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   asp-route-currentStatus="@ViewData["CurrentStatus"]"
+   class="btn btn-default @prevDisabled">
+	Previous
+</a>
+<a asp-action="Index"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   asp-route-currentStatus="@ViewData["CurrentStatus"]"
+   class="btn btn-default @nextDisabled">
+	Next
+</a>

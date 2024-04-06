@@ -1,60 +1,67 @@
 ﻿@model NProjectMVC.Models.ProjectTask
 
 @{
-    ViewData["Title"] = "Details";
+	ViewData["Title"] = "Details";
 }
 
 <h1>Details</h1>
 
 <div>
-    <h4>ProjectTask</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Deadline)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Deadline)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EstimatedWorkTime)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EstimatedWorkTime)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TimeSpent)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TimeSpent)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Project)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Project.Description)
-        </dd>
-    </dl>
+	<h4>ProjectTask</h4>
+	<hr />
+	<dl class="row">
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.Title)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.Title)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.Description)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.Description)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.Deadline)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.Deadline)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.Status)
+		</dt>
+		<dd class="col-sm-10">
+			@{
+				Status status = (Status)Model.Status;
+			}
+			@status.ToString()
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.EstimatedWorkTime)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.EstimatedWorkTime)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.TimeSpent)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.TimeSpent)
+		</dd>
+		<dt class="col-sm-2">
+			@Html.DisplayNameFor(model => model.Project)
+		</dt>
+		<dd class="col-sm-10">
+			@Html.DisplayFor(model => model.Project.Name)
+		</dd>
+	</dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+	<a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+	<a asp-controller="Project" asp-action="Details" asp-route-id="@Model?.ProjectId">Back to Project</a>
 </div>
+@if (Model?.WorkedTasks != null)
+{
+	<partial name="_WorkedTaskList" model="@Model?.WorkedTasks.OrderByDescending(w => w.StartTime)"></partial>
+}
