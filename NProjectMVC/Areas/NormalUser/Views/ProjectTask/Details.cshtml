@@ -57,6 +57,15 @@
 		</dd>
 	</dl>
 </div>
+<div class="col-md-4">
+	<ul class="list-group">
+
+		@foreach (var member in Model.AssignedMembers)
+		{
+			<li class="list-group-item">@member.UserName</li>
+		}
+	</ul>
+</div>
 <div>
 	<a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
 	<a asp-controller="Project" asp-action="Details" asp-route-id="@Model?.ProjectId">Back to Project</a>

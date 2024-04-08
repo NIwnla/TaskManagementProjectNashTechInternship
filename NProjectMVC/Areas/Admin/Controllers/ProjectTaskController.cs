@@ -71,6 +71,7 @@ namespace NProjectMVC.Areas.Admin.Controllers
 				.Include(t => t.WorkedTasks)
 				.ThenInclude(w => w.User)
 				.Include(t => t.Project)
+				.Include(t => t.AssignedMembers)
 				.FirstOrDefault();
 			if (task == null)
 			{

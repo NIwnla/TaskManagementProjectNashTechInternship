@@ -50,7 +50,7 @@ namespace NProjectMVC.Areas.Manager.Controllers
 
 		public IActionResult Details(Guid id)
 		{
-			var project = _repository.FindByCondition(p => p.Id == id).Include(p => p.ProjectTasks).FirstOrDefault();
+			var project = _repository.FindByCondition(p => p.Id == id).Include(p => p.ProjectTasks).Include(p => p.Members).FirstOrDefault();
 			if (project == null)
 			{
 				return NotFound("Not found");
